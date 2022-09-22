@@ -6,16 +6,15 @@ define(["base/js/namespace", "base/js/events"], function (Jupyter, events) {
     Jupyter.notebook.kernel.execute(
       "from nbcodecarbon import save_thread; save_thread.start()"
     );
+    console.log("codecarbon started");
   };
 
-  let save_content = function () {
+  let start_extension = function () {
+    console.log("Starting extension...");
     if (Jupyter.notebook.kernel) {
-      console.log("READY 1");
       start_codecarbon();
     } else {
-      console.log("NOT READY 2");
       Jupyter.notebook.events.one("kernel_ready.Kernel", (e) => {
-        console.log("READY 2");
         start_codecarbon();
       });
     }
@@ -40,7 +39,7 @@ define(["base/js/namespace", "base/js/events"], function (Jupyter, events) {
   var save_auto = function () {
     setInterval(function () {
       console.log("Save content 2 !!");
-      save_content();
+      start_extension();
     }, 5000);
   };
 
@@ -50,7 +49,7 @@ define(["base/js/namespace", "base/js/events"], function (Jupyter, events) {
     if (Jupyter.notebook.get_cells().length === 1) {
       // init_nb();
     }
-    save_content();
+    start_extension();
     // planetJupyterButton();
     // save_auto();
   }

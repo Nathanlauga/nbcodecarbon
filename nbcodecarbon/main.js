@@ -22,13 +22,12 @@ define(["base/js/namespace", "base/js/events"], function (Jupyter, events) {
 
   let start_codecarbon = function () {
     // import init_tracker func
-    execute_python(
-      "from nbcodecarbon import init_tracker, launch_thread_saving; import threading"
-    ).then((r) => log_out_if_error(r));
+    execute_python("from nbcodecarbon import init_tracker").then((r) =>
+      log_out_if_error(r)
+    );
 
     // get conf
-    let i,
-      config = Jupyter.notebook.config;
+    let config = Jupyter.notebook.config;
     let conf = {};
 
     if (config.data.hasOwnProperty("nbcodecarbon")) {
@@ -38,27 +37,19 @@ define(["base/js/namespace", "base/js/events"], function (Jupyter, events) {
     }
     console.log("conf", conf);
 
-    execute_python('tracker = init_tracker("""' + conf + '""")').then((r) =>
-      log_out_if_error(r)
-    );
+    execute_python(
+      'tracker, save_thread = init_tracker("""' + conf + '""")'
+    ).then((r) => log_out_if_error(r));
 
     // rename tracker with current notebook name
     execute_python(
       "tracker._project_name = '" + Jupyter.notebook.notebook_name + "'"
     ).then((r) => log_out_if_error(r));
 
-    // TODO : default measure_power_secs
-    execute_python(
-      "save_thread = threading.Thread(target=launch_thread_saving, args=(tracker, " +
-        conf.measure_power_secs +
-        "))"
-    ).then((r) => log_out_if_error(r));
-
     // Start tracker
-    // TODO : finish start thread
     execute_python("tracker.start()").then((r) => log_out_if_error(r));
-    execute_python("save_thread.start()").then((r) => log_out_if_error(r));
     // start thread to save each N seconds
+    execute_python("save_thread.start()").then((r) => log_out_if_error(r));
   };
 
   let start_extension = function () {

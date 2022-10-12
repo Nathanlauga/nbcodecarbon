@@ -7,4 +7,17 @@ Description: |
   Jupyter extension to automaticaly run codecarbon in background for a notebook.
 
 Parameters:
-- none
+- name: nbcodecarbon.codecarbon_config
+  description: |
+    TODO
+  input_type: textarea
+  default: |
+    {
+        "measure_power_secs": 20,
+        "save_to_file": True,
+        "log_level": "warning",
+        "output_dir": ".",
+        "output_file": "emissions_2.csv",
+        "on_csv_write": "append",
+        "country_iso_code": "FRA",
+    }

@@ -1,37 +1,35 @@
+import code
 import threading
 import time
-import datetime
+import ast
 from codecarbon import OfflineEmissionsTracker
 import logging
+from .default_conf import codecarbon_default_conf
 
 stop_thread = False
 logger = logging.getLogger("codecarbon")
 
-def save_codecarbon_tracker():
-    global tracker
 
-    # TODO
-    logger.setLevel(50)
-    emissions = tracker.flush()
+def init_tracker(conf):
+    conf = ast.literal_eval(conf)
+    conf = {**codecarbon_default_conf, **conf}
 
-    with open("test.txt", "a") as f:
-        d = datetime.datetime.today().strftime("%Y/%m/%d %X")
-        f.write(f"{d} - {emissions}\n")
+    tracker = OfflineEmissionsTracker(**conf)
 
+    # TODO map with measure_power_secs
+    interval = 10
 
-def launch_thread_saving(interval=5):
-    # stop_thread will be set as false in main.js
-    global stop_thread
-    while True:
-        time.sleep(interval)
+    def flush_tracker_thread():
+        # stop_thread will be set as false in main.js
+        global stop_thread
+        while True:
+            time.sleep(interval)
 
-        if stop_thread:
-            break
+            if stop_thread:
+                break
 
-        save_codecarbon_tracker()
+            tracker.flush()
 
-# TODO remove logs
-tracker = OfflineEmissionsTracker(country_iso_code="FRA")
-tracker.start()
-logger.setLevel(50)
-save_thread = threading.Thread(target=launch_thread_saving)
+    save_thread = threading.Thread(target=flush_tracker_thread)
+
+    return tracker, save_thread

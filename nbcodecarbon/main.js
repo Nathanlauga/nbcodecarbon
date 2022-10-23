@@ -60,6 +60,19 @@ define(["base/js/namespace", "base/js/events"], function (Jupyter, events) {
     });
   };
 
+  let handler_start_stop_tracker = function () {
+    // start stop tracker
+    execute_python(`
+    if tracker._start_time is None:
+        tracker.start()
+    else:
+        tracker.stop()
+        tracker._start_time = None
+    `).then(
+      (r) => log_out_if_error(r)
+    );
+  };
+
   let handler_flush_tracker = function () {
     // save tracker manually
     execute_python("tracker.flush()").then((r) => log_out_if_error(r));
@@ -69,25 +82,39 @@ define(["base/js/namespace", "base/js/events"], function (Jupyter, events) {
   function load_ipython_extension() {
     start_extension();
 
+    let prefix = "nbcodecarbon";
+
     // define parameter to save manually tracker's output
-    let action = {
+    let action_start_stop = {
       icon: "fa-leaf",
+      help: "Start or stop codecarbon tracker running in background",
+      help_index: "zz",
+      handler: handler_start_stop_tracker,
+    };
+    // register action
+    let start_stop_tracker_action = Jupyter.actions.register(
+      action_start_stop,
+      "start-stop-tracker",
+      prefix
+    ); // returns 'nbcodecarbon:start-stop-tracker'
+
+    // define parameter to save manually tracker's output
+    let action_save = {
+      icon: "fa-floppy-o",
       help: "Save codecarbon tracker emissions details manually",
       help_index: "zz",
       handler: handler_flush_tracker,
     };
-    let prefix = "nbcodecarbon";
-    let action_name = "flush-tracker";
 
     // register action
     let flush_tracker_action = Jupyter.actions.register(
-      action,
-      action_name,
+      action_save,
+      "flush-tracker",
       prefix
     ); // returns 'nbcodecarbon:flush-tracker'
 
     // add action button to toolbar
-    Jupyter.toolbar.add_buttons_group([flush_tracker_action]);
+    Jupyter.toolbar.add_buttons_group([start_stop_tracker_action, flush_tracker_action]);
   }
 
   return {

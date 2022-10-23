@@ -6,7 +6,6 @@ from codecarbon import OfflineEmissionsTracker
 import logging
 from .default_conf import codecarbon_default_conf
 
-stop_thread = False
 logger = logging.getLogger("codecarbon")
 
 
@@ -20,15 +19,11 @@ def init_tracker(conf):
     interval = 10
 
     def flush_tracker_thread():
-        # stop_thread will be set as false in main.js
-        global stop_thread
         while True:
             time.sleep(interval)
 
-            if stop_thread:
-                break
-
-            tracker.flush()
+            if tracker._start_time is not None:
+                tracker.flush()
 
     save_thread = threading.Thread(target=flush_tracker_thread)
 

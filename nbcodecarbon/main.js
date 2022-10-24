@@ -46,8 +46,10 @@ define(["base/js/namespace", "base/js/events"], function (Jupyter, events) {
       "tracker._project_name = '" + Jupyter.notebook.notebook_name + "'"
     ).then((r) => log_out_if_error(r));
 
-    // Start tracker
-    execute_python("tracker.start()").then((r) => log_out_if_error(r));
+    if (config.data.nbcodecarbon.start_on_kernel_start) {
+      // Start tracker
+      execute_python("tracker.start()").then((r) => log_out_if_error(r));
+    }
     // start thread to save each N seconds
     execute_python("save_thread.start()").then((r) => log_out_if_error(r));
   };
@@ -68,9 +70,7 @@ define(["base/js/namespace", "base/js/events"], function (Jupyter, events) {
     else:
         tracker.stop()
         tracker._start_time = None
-    `).then(
-      (r) => log_out_if_error(r)
-    );
+    `).then((r) => log_out_if_error(r));
   };
 
   let handler_flush_tracker = function () {
@@ -114,7 +114,10 @@ define(["base/js/namespace", "base/js/events"], function (Jupyter, events) {
     ); // returns 'nbcodecarbon:flush-tracker'
 
     // add action button to toolbar
-    Jupyter.toolbar.add_buttons_group([start_stop_tracker_action, flush_tracker_action]);
+    Jupyter.toolbar.add_buttons_group([
+      start_stop_tracker_action,
+      flush_tracker_action,
+    ]);
   }
 
   return {

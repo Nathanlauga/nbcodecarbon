@@ -7,9 +7,17 @@ Description: |
   Jupyter extension to automaticaly run codecarbon in background for a notebook.
 
 Parameters:
+- name: nbcodecarbon.start_on_kernel_start
+  description: |
+    Whether the tracker is automatically started when the notebook kernel
+    is starting
+  input_type: checkbox
+  default: true
+
 - name: nbcodecarbon.codecarbon_config
   description: |
-    TODO
+    Configuration dictionnary to change tracker behavior (see documentation here
+    https://mlco2.github.io/codecarbon/parameters.html)
   input_type: textarea
   default: |
     {
